@@ -63,6 +63,7 @@ struct ContentView: View {
                             Image(countries[number])
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .shadow(radius: 5)
+                                .rotation3DEffect(.degrees(360), axis: x:0, y:1, z:0)
                         }
                     }
                 }
