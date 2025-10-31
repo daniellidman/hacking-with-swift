@@ -5,43 +5,26 @@
 //  Created by Daniel Lidman on 10/28/25.
 //
 
-import CoreImage
-import CoreImage.CIFilterBuiltins
+import PhotosUI
 import SwiftUI
 
 struct ContentView: View {
-    @State private var image: Image?
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var selectedImage: Image?
 
     var body: some View {
         VStack {
-            image?
-                .resizable()
-                .scaledToFit()
+            PhotosPicker("Select a picture", selection: $pickerItem, matching: .images)
         }
-        .onAppear(perform: loadImage)
-    }
+        .onChange(of: pickerItem) {
+            Task {
+                selectedImage = try await pickerItem?.loadTransferable(type: Image.self)
+            }
+        }
 
-    func loadImage() {
-        let inputImage = UIImage(resource: .poetry) //
-        let beginImage = CIImage(image: inputImage)
-
-        let context = CIContext()
-        let currentFilter = CIFilter.sepiaTone()
-
-        currentFilter.inputImage = beginImage
-        currentFilter.intensity = 1
-
-        // get a CIImage from our filter or exit if that fails
-        guard let outputImage = currentFilter.outputImage else { return }
-
-        // attempt to get a CGImage from our CIImage
-        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else { return }
-
-        // convert that to a UIImage
-        let uiImage = UIImage(cgImage: cgImage)
-
-        // and convert that to a SwiftUI image
-        image = Image(uiImage: uiImage)
+        selectedImage?
+            .resizable()
+            .scaledToFit()
     }
 }
 
